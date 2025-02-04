@@ -55,7 +55,7 @@
         const html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start(
             { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 375, height: 375 } }, // Increased qrbox size by 1.5x (original was 250x250)
+            { fps: 10, qrbox: 250 }, // Increased qrbox size by 1.5x (original was qrbox:{ width: 375, height: 375 } and bef that { width: 250, height: 250 })
             onScanSuccess,
             onScanError
         );
