@@ -28,7 +28,7 @@
 </head>
 <body>
 
-    <h1>zomAsp Scanner</h1>
+    <h1>qcode Scanner</h1>
     <div id="reader"></div>
     <p>Scanned QR Codes:</p>
     <p id="scanned-results">None</p>
@@ -56,11 +56,11 @@
         // Start the scanner with proper video constraints and facingMode
         html5QrCode.start(
             {
-                facingMode: "environment",  // Use the rear camera
                 videoConstraints: {
-                    width: 1280,  // Set video resolution to 1280px width
-                    height: 720,  // Set video resolution to 720px height
-                    aspectRatio: 1.7777  // 16:9 aspect ratio for better video feed
+                    facingMode: "environment",  // Use the rear camera
+                    width: { exact: 1280 },  // Set video resolution to 1280px width
+                    height: { exact: 720 },  // Set video resolution to 720px height
+                    aspectRatio: { exact: 1.7777 }  // 16:9 aspect ratio for better video feed
                 }
             },
             {
