@@ -15,7 +15,7 @@
         }
         #reader {
             width: 100%;
-            max-width: 100%;
+            max-width: 80%;
             margin: auto;
             border: 2px solid #000;
             position: relative;
@@ -34,7 +34,7 @@
 </head>
 <body>
 
-    <h1>Code Scanner</h1>
+    <h1>CC Scanner</h1>
     <div id="reader"></div>
     <p>Scanned QR Codes:</p>
     <p id="scanned-results">None</p>
@@ -72,7 +72,7 @@
             const videoConstraints = {
                 deviceId: { exact: backCamera.id },
                 facingMode: "environment",
-                advanced: [{ zoom: 3 }] // Attempt 5x zoom
+                advanced: [{ zoom: 5 }] // Attempt 5x zoom
             };
 
             navigator.mediaDevices.getUserMedia({ video: videoConstraints })
@@ -82,7 +82,7 @@
 
                     if (capabilities.zoom) {
                         let maxZoom = capabilities.zoom.max;
-                        let optimalZoom = Math.min(5, maxZoom); // Use the max supported zoom level
+                        let optimalZoom = Math.min(3, maxZoom); // Use the max supported zoom level
 
                         videoTrack.applyConstraints({ advanced: [{ zoom: optimalZoom }] });
                     }
