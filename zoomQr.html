@@ -28,7 +28,7 @@
 </head>
 <body>
 
-    <h1>RCode Scanner</h1>
+    <h1>QR Code Scanner</h1>
     <div id="reader"></div>
     <p>Scanned QR Codes:</p>
     <p id="scanned-results">None</p>
@@ -53,9 +53,9 @@
         // Initialize the HTML5 QR code reader
         const html5QrCode = new Html5Qrcode("reader");
 
-        // Start the scanner with a simple camera config and higher resolution
+        // Start the scanner with the rear camera and set the resolution
         html5QrCode.start(
-            { facingMode: "environment" },  // Use the rear camera
+            { facingMode: { exact: "environment" } },  // Explicitly use the rear camera
             {
                 fps: 10,
                 qrbox: { width: 1000, height: 1000 },  // Larger scanning window for better detection
