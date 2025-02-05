@@ -72,7 +72,7 @@
             const videoConstraints = {
                 deviceId: { exact: backCamera.id },
                 facingMode: "environment",
-                advanced: [{ zoom: 5 }] // Attempt 5x zoom
+                advanced: [{ zoom: 3 }] // Attempt 5x zoom
             };
 
             navigator.mediaDevices.getUserMedia({ video: videoConstraints })
