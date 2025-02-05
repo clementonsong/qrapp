@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Scanner</title>
-    <!--script src="https://unpkg.com/html5-qrcode"></script-->
-	<!--script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script-->
-	<script src="./html5-qrcode.min.js"></script>
+    <script src="./html5-qrcode.min.js"></script>
 
     <style>
         body {
@@ -17,7 +15,7 @@
         }
         #reader {
             width: 60%;
-            max-width: 500px;
+            max-width: 750px;
             margin: auto;
             border: 2px solid #000;
         }
@@ -52,10 +50,18 @@
             console.warn(errorMessage);
         }
 
+        // Initialize the HTML5 QR code reader
         const html5QrCode = new Html5Qrcode("reader");
+
+        // Start the scanner with a 2x zoom by setting qrbox size to 1000x1000 (2x the default 500)
         html5QrCode.start(
             { facingMode: "environment" },
-            { fps: 10, qrbox: 350 }, // Increased qrbox size by 1.5x (original was qrbox:{ width: 375, height: 375 } and bef that { width: 250, height: 250 })
+            {
+                fps: 10,
+                qrbox: { width: 1000, height: 1000 },  // 2x zoom (1000px instead of 500px)
+                aspectRatio: 1,
+                disableFlip: false
+            },
             onScanSuccess,
             onScanError
         );
