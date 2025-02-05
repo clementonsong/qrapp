@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="./html5-qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #reader {
+            width: 100%;
+            max-width: 100%;
+            margin: auto;
+            border: 2px solid #000;
+        }
+        #scanned-results {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>QR Code Scanner</h1>
+    <div id="reader"></div>
+    <p>Scanned QR Codes:</p>
+    <p id="scanned-results">None</p>
+
+    <script>
+        const scannedCodes = new Set(); // Store unique QR codes
+
+        function onScanSuccess(decodedText) {
+            if (!scannedCodes.has(decodedText) && scannedCodes.size < 5) {
+                scannedCodes.add(decodedText);
+                document.getElementById("scanned-results").innerText = Array.from(scannedCodes).join(", ");
+                
+                // Show alert for each scanned QR code
+                alert(`Scanned QR Code: ${decodedText}`);
+            }
+        }
+
+        function onScanError(errorMessage) {
+            console.warn(errorMessage);
+        }
+
+        // Initialize the HTML5 QR code reader
+        const html5QrCode = new Html5Qrcode("reader");
+
+        // Start the scanner with a 2x zoom by setting qrbox size to 1000x1000 (2x the default 500)
+        html5QrCode.start(
+            { facingMode: "environment" },
+            {
+                fps: 10,
+                qrbox: { width: 1000, height: 1000 },  // 2x zoom (1000px instead of 500px)
+                aspectRatio: 1,
+                disableFlip: false
+            },
+            onScanSuccess,
+            onScanError
+        );
+    </script>
+
+</body>
+</html>
