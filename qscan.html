@@ -34,7 +34,7 @@
 </head>
 <body>
 
-    <h1>QRR Code Scanner</h1>
+    <h1>Code Scanner</h1>
     <div id="reader"></div>
     <p>Scanned QR Codes:</p>
     <p id="scanned-results">None</p>
@@ -59,41 +59,53 @@
         // Initialize the HTML5 QR code reader
         const html5QrCode = new Html5Qrcode("reader");
 
-        // Camera constraints for zoom
-        const videoConstraints = {
-            facingMode: "environment",
-            advanced: [{ zoom: 5 }] // Attempt 5x zoom
-        };
+        // Get camera list and find back camera
+        Html5Qrcode.getCameras().then(cameras => {
+            if (cameras.length === 0) {
+                console.error("No cameras found.");
+                return;
+            }
 
-        navigator.mediaDevices.getUserMedia({ video: videoConstraints })
-            .then(stream => {
-                let videoTrack = stream.getVideoTracks()[0];
-                let capabilities = videoTrack.getCapabilities();
+            let backCamera = cameras.find(cam => cam.label.toLowerCase().includes("back")) || cameras[0];
 
-                if (capabilities.zoom) {
-                    let maxZoom = capabilities.zoom.max;
-                    let optimalZoom = Math.min(5, maxZoom); // Use the max supported zoom level
+            // Camera constraints for zoom
+            const videoConstraints = {
+                deviceId: { exact: backCamera.id },
+                facingMode: "environment",
+                advanced: [{ zoom: 5 }] // Attempt 5x zoom
+            };
 
-                    videoTrack.applyConstraints({ advanced: [{ zoom: optimalZoom }] });
-                }
+            navigator.mediaDevices.getUserMedia({ video: videoConstraints })
+                .then(stream => {
+                    let videoTrack = stream.getVideoTracks()[0];
+                    let capabilities = videoTrack.getCapabilities();
 
-                // Start QR code scanning
-                html5QrCode.start(
-                    stream,
-                    {
-                        fps: 10,
-                        qrbox: { width: 500, height: 500 }, // Adjust based on your preference
-                        aspectRatio: 1,
-                        disableFlip: false
-                    },
-                    onScanSuccess,
-                    onScanError
-                );
-            })
-            .catch(error => {
-                console.error("Error accessing camera:", error);
-                alert("Camera access denied or unsupported. Please allow access and refresh.");
-            });
+                    if (capabilities.zoom) {
+                        let maxZoom = capabilities.zoom.max;
+                        let optimalZoom = Math.min(5, maxZoom); // Use the max supported zoom level
+
+                        videoTrack.applyConstraints({ advanced: [{ zoom: optimalZoom }] });
+                    }
+
+                    // Start QR scanning with the selected camera ID
+                    html5QrCode.start(
+                        backCamera.id,
+                        {
+                            fps: 10,
+                            qrbox: { width: 500, height: 500 },
+                            aspectRatio: 1,
+                            disableFlip: false
+                        },
+                        onScanSuccess,
+                        onScanError
+                    );
+                })
+                .catch(error => {
+                    console.error("Error accessing camera:", error);
+                    alert("Camera access denied or unsupported. Please allow access and refresh.");
+                });
+
+        }).catch(error => console.error("Error fetching camera list:", error));
     </script>
 
 </body>
