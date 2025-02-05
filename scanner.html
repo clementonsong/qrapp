@@ -30,7 +30,7 @@
 </head>
 <body>
 
-    <h1>fps1 Code Scanner</h1>
+    <h1>2k Code Scanner</h1>
     <div id="reader"></div>
     <p>Scanned QR Codes:</p>
     <p id="scanned-results">None</p>
@@ -57,7 +57,7 @@
         const html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start(
             { facingMode: "environment" },
-            { fps: 20, qrbox: { width: 1250, height: 1250 } },
+            { fps: 20, qrbox: { width: 2000, height: 2000 } },
             onScanSuccess,
             onScanError
         );
