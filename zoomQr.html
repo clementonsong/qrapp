@@ -31,7 +31,7 @@
 </head>
 <body>
 
-    <h1>zoomQR Code Scanner</h1>
+    <h1>zzQR Code Scanner</h1>
     <div id="reader"></div>
     <p>Scanned QR Codes:</p>
     <p id="scanned-results">None</p>
@@ -44,6 +44,7 @@
     <script>
         const scannedCodes = new Set(); // Store unique QR codes
         let currentZoom = 1; // Default zoom level
+        let qrboxSize = 500; // Default QR box size
 
         function onScanSuccess(decodedText) {
             if (!scannedCodes.has(decodedText) && scannedCodes.size < 5) {
@@ -62,26 +63,28 @@
         function zoomIn() {
             if (currentZoom < 3) { // Maximum zoom level
                 currentZoom += 0.5;
-                updateScannerSettings();
+                qrboxSize = 500 * currentZoom;
+                updateQrbox();
             }
         }
 
         function zoomOut() {
             if (currentZoom > 1) { // Minimum zoom level
                 currentZoom -= 0.5;
-                updateScannerSettings();
+                qrboxSize = 500 * currentZoom;
+                updateQrbox();
             }
         }
 
-        function updateScannerSettings() {
-            // Update qrbox size based on zoom level
-            const qrboxSize = 500 * currentZoom;
+        function updateQrbox() {
+            // Stop the current scanner
             html5QrCode.stop().then(() => {
+                // Start the scanner again with the new QR box size
                 html5QrCode.start(
                     { facingMode: "environment" },
                     {
-                        fps: 10, 
-                        qrbox: { width: qrboxSize, height: qrboxSize }, 
+                        fps: 10,
+                        qrbox: { width: qrboxSize, height: qrboxSize },
                         aspectRatio: 1,
                         disableFlip: false
                     },
@@ -95,15 +98,15 @@
 
         // Initialize the HTML5 QR code reader
         const html5QrCode = new Html5Qrcode("reader");
-        
-        // Start the scanner
+
+        // Start the scanner with the default configuration
         html5QrCode.start(
             { facingMode: "environment" },
             {
-                fps: 10, 
-                qrbox: { width: 500, height: 500 }, 
-                aspectRatio: 1, 
-                disableFlip: false 
+                fps: 10,
+                qrbox: { width: qrboxSize, height: qrboxSize },
+                aspectRatio: 1,
+                disableFlip: false
             },
             onScanSuccess,
             onScanError
