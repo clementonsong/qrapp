@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="./html5-qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #reader {
+            width: 60%;
+            max-width: 750px;
+            margin: auto;
+            border: 2px solid #000;
+        }
+        #scanned-results {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #zoom-controls {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>zoomQR Code Scanner</h1>
+    <div id="reader"></div>
+    <p>Scanned QR Codes:</p>
+    <p id="scanned-results">None</p>
+
+    <div id="zoom-controls">
+        <button onclick="zoomIn()">Zoom In</button>
+        <button onclick="zoomOut()">Zoom Out</button>
+    </div>
+
+    <script>
+        const scannedCodes = new Set(); // Store unique QR codes
+        let currentZoom = 1; // Default zoom level
+
+        function onScanSuccess(decodedText) {
+            if (!scannedCodes.has(decodedText) && scannedCodes.size < 5) {
+                scannedCodes.add(decodedText);
+                document.getElementById("scanned-results").innerText = Array.from(scannedCodes).join(", ");
+                
+                // Show alert for each scanned QR code
+                alert(`Scanned QR Code: ${decodedText}`);
+            }
+        }
+
+        function onScanError(errorMessage) {
+            console.warn(errorMessage);
+        }
+
+        function zoomIn() {
+            if (currentZoom < 3) { // Maximum zoom level
+                currentZoom += 0.5;
+                updateScannerSettings();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > 1) { // Minimum zoom level
+                currentZoom -= 0.5;
+                updateScannerSettings();
+            }
+        }
+
+        function updateScannerSettings() {
+            // Update qrbox size based on zoom level
+            const qrboxSize = 500 * currentZoom;
+            html5QrCode.stop().then(() => {
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10, 
+                        qrbox: { width: qrboxSize, height: qrboxSize }, 
+                        aspectRatio: 1,
+                        disableFlip: false
+                    },
+                    onScanSuccess,
+                    onScanError
+                );
+            }).catch(err => {
+                console.error("Error restarting QR code scanner: ", err);
+            });
+        }
+
+        // Initialize the HTML5 QR code reader
+        const html5QrCode = new Html5Qrcode("reader");
+        
+        // Start the scanner
+        html5QrCode.start(
+            { facingMode: "environment" },
+            {
+                fps: 10, 
+                qrbox: { width: 500, height: 500 }, 
+                aspectRatio: 1, 
+                disableFlip: false 
+            },
+            onScanSuccess,
+            onScanError
+        );
+    </script>
+
+</body>
+</html>
