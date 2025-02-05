@@ -28,7 +28,7 @@
 </head>
 <body>
 
-    <h1>RR Code Scanner</h1>
+    <h1>QQ Code Scanner</h1>
     <div id="reader"></div>
     <p>Scanned QR Codes:</p>
     <p id="scanned-results">None</p>
@@ -53,22 +53,33 @@
         // Initialize the HTML5 QR code reader
         const html5QrCode = new Html5Qrcode("reader");
 
-        // Start the scanner with the rear camera and set the resolution
-        html5QrCode.start(
-            { facingMode: { exact: "environment" } },  // Explicitly use the rear camera
-            {
-                fps: 10,
-                qrbox: { width: 1000, height: 1000 },  // Larger scanning window for better detection
-                aspectRatio: 1,
-                disableFlip: false,
-                videoConstraints: {
-                    width: { ideal: 1280 },  // Ideal video resolution width
-                    height: { ideal: 720 },  // Ideal video resolution height
-                }
-            },
-            onScanSuccess,
-            onScanError
-        );
+        // Get all available cameras and select the rear camera (environment)
+        navigator.mediaDevices.enumerateDevices().then(devices => {
+            const rearCamera = devices.find(device => device.kind === 'videoinput' && device.label.toLowerCase().includes('back'));
+            
+            if (rearCamera) {
+                // Start the scanner using the rear camera deviceId
+                html5QrCode.start(
+                    { deviceId: rearCamera.deviceId },  // Use the rear camera's deviceId
+                    {
+                        fps: 10,
+                        qrbox: { width: 1000, height: 1000 },  // Larger scanning window for better detection
+                        aspectRatio: 1,
+                        disableFlip: false,
+                        videoConstraints: {
+                            width: { ideal: 1280 },  // Ideal video resolution width
+                            height: { ideal: 720 },  // Ideal video resolution height
+                        }
+                    },
+                    onScanSuccess,
+                    onScanError
+                );
+            } else {
+                alert("No rear camera found");
+            }
+        }).catch(err => {
+            console.error("Error accessing devices:", err);
+        });
     </script>
 
 </body>
