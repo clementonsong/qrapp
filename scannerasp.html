@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <!-- Link to the CDN version of html5-qrcode -->
+    <!--script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script-->
+    <script src="./html5-qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #reader {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #000;
+        }
+        #scanned-results {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>asp QR Code Scanner</h1>
+    <div id="reader"></div>
+    <p>Scanned QR Codes:</p>
+    <p id="scanned-results">None</p>
+
+    <script>
+        const scannedCodes = new Set(); // Store unique QR codes
+
+        function onScanSuccess(decodedText) {
+            if (!scannedCodes.has(decodedText) && scannedCodes.size < 5) {
+                scannedCodes.add(decodedText);
+                document.getElementById("scanned-results").innerText = Array.from(scannedCodes).join(", ");
+                
+                // Show alert for each scanned QR code
+                alert(`Scanned QR Code: ${decodedText}`);
+            }
+        }
+
+        function onScanError(errorMessage) {
+            console.warn(errorMessage);
+        }
+
+        // Initialize the HTML5 QR code reader
+        const html5QrCode = new Html5Qrcode("reader");
+        
+        // Start the scanner
+        html5QrCode.start(
+            { facingMode: "environment" },
+            {
+                fps: 10, 
+                qrbox: { width: 500, height: 500 }, // Increased qrbox size
+                aspectRatio: 1, // This can help maintain the aspect ratio of the scanner window
+                disableFlip: false // Allow the camera to rotate for better scanning
+            },
+            onScanSuccess,
+            onScanError
+        );
+    </script>
+
+</body>
+</html>
