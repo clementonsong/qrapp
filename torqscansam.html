@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="./html5-qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #reader {
+            width: 100%;
+            max-width: 80%;
+            margin: auto;
+            border: 2px solid #000;
+            position: relative;
+        }
+        #qr-video {
+            width: 100%;
+            max-width: 100%;
+            transform-origin: center;
+        }
+        #scanned-results {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #torch-button {
+            margin: auto;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none; /* Initially hidden, shown only if torch is supported */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>QR HYG Torch SCAN</h1>
+    <div id="reader"></div>
+    <button id="torch-button">Torch</button> <!-- Torch Button -->
+    <p>Scanned QR Codes:</p>
+    <p id="scanned-results">None</p>
+
+    <script>
+        const scannedCodes = new Set();
+        let videoTrack;
+        let torchOn = false;
+
+        function onScanSuccess(decodedText) {
+            if (!scannedCodes.has(decodedText)) {
+                scannedCodes.add(decodedText);
+                document.getElementById("scanned-results").innerText = Array.from(scannedCodes).join(", ");
+                alert(`Scanned QR Code: ${decodedText}`);
+            }
+        }
+
+        function onScanError(errorMessage) {
+            console.warn(errorMessage);
+        }
+
+        const html5QrCode = new Html5Qrcode("reader");
+
+        Html5Qrcode.getCameras().then(cameras => {
+            if (cameras.length === 0) {
+                console.error("No cameras found.");
+                return;
+            }
+
+            // Detect if device is Samsung
+            const isSamsung = /samsung/i.test(navigator.userAgent);
+
+            let backCamera;
+
+            if (isSamsung) {
+                // Try to select the first back camera that is NOT a wide-angle lens
+                backCamera = cameras.find(cam => cam.label.toLowerCase().includes("back") && !cam.label.toLowerCase().includes("wide")) || cameras[0];
+            } else {
+                // Default logic for other phones
+                backCamera = cameras.find(cam => cam.label.toLowerCase().includes("back")) || cameras[0];
+            }
+
+            const videoConstraints = {
+                deviceId: { exact: backCamera.id },
+                facingMode: "environment",
+                advanced: [{ zoom: 3 }]
+            };
+
+            navigator.mediaDevices.getUserMedia({ video: videoConstraints })
+                .then(stream => {
+                    videoTrack = stream.getVideoTracks()[0];
+                    let capabilities = videoTrack.getCapabilities();
+
+                    if (capabilities.zoom) {
+                        let maxZoom = capabilities.zoom.max;
+                        let optimalZoom = Math.min(3, maxZoom);
+                        videoTrack.applyConstraints({ advanced: [{ zoom: optimalZoom }] });
+                    }
+
+                    // Enable torch button if supported
+                    if (capabilities.torch) {
+                        document.getElementById("torch-button").style.display = "block";
+                    }
+
+                    // Start QR scanning
+                    html5QrCode.start(
+                        backCamera.id,
+                        {
+                            fps: 10,
+                            qrbox: { width: 500, height: 500 },
+                            aspectRatio: 1,
+                            disableFlip: false
+                        },
+                        onScanSuccess,
+                        onScanError
+                    );
+                })
+                .catch(error => {
+                    console.error("Error accessing camera:", error);
+                    alert("Camera access denied or unsupported. Please allow access and refresh.");
+                });
+
+        }).catch(error => console.error("Error fetching camera list:", error));
+
+        // Toggle torch function
+        document.getElementById("torch-button").addEventListener("click", () => {
+            if (videoTrack) {
+                torchOn = !torchOn;
+                videoTrack.applyConstraints({ advanced: [{ torch: torchOn }] });
+            }
+        });
+    </script>
+
+</body>
+</html>
